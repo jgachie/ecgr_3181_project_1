@@ -4,7 +4,7 @@
 
 using namespace std;
 
-public class RegisterBank{
+class RegisterBank{
     private static int[] x19 = new bool[8]; //Up/down indicator for buttons
     private static int[] x20 = new int[3]; //Stores destination floors
     private static Elevator elev;
@@ -47,7 +47,7 @@ public class RegisterBank{
             x20[i] = x20[i + 1]
         }
         
-        x20[x20.length] = -1;
+        x20[x20.length - 1] = -1;
         
         if (elev.isKey())
             elev.setKey(false);

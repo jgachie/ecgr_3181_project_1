@@ -6,9 +6,12 @@
 
 using namespace std;
 
-public class Elevator{
+class Elevator{
     private int currentFloor;
     private int timeSecs = 0;
+    private int floorSecs = 0;
+    private int doorSecs = 0;
+    private int irSecs = 0;
     private bool sound = false;
     private bool doors = false; //True when open; false when closed
     private bool ir = false;
@@ -53,40 +56,46 @@ public class Elevator{
     }
     
     public void move(){
-        sleep(5); //Wait for five seconds while the elevator reaches the floor
+        //sleep(5); //Wait for five seconds while the elevator reaches the floor
         
         int nextFloor = RegisterBank.getNextFloor();
         
-        if (currentFloor < nextFloor()){
-            currentFloor++;
-            if (currentFloor == nextFloor){
-                RegisterBank.floorReached();
-                sleep(1); //Wait one second while the doors latch
-                if (!fireFighter)
-                    openDoors(); //Open the doors
-                else{
-                    while (!doorOpen)
-                        sleep(1);
+        if (floorSecs == 5){
+            floorSecs = 0;
+        
+            if (currentFloor < nextFloor()){
+                currentFloor++;
+                if (currentFloor == nextFloor){
+                    RegisterBank.floorReached();
+                    sleep(1); //Wait one second while the doors latch
+                    if (!fireFighter)
+                        openDoors(); //Open the doors
+                    else{
+                        while (!doorOpen)
+                            sleep(1);
                     
-                    openDoors();
+                        openDoors();
+                    }
+                }
+            }
+            else if (currentFloor > nextFloor){
+                currentFloor--;
+                if (currentFloor == RegisterBank.getNextFloor()){
+                    RegisterBank.floorReached();
+                    sleep(1); //Wait one second while the doors latch
+                    if (!fireFighter)
+                        openDoors(); //Open the doors
+                    else{
+                        while (!doorOpen)
+                            sleep(1);
+                    
+                        openDoors();
+                    }
                 }
             }
         }
-        else if (currentFloor > nextFloor){
-            currentFloor--;
-            if (currentFloor == RegisterBank.getNextFloor()){
-                RegisterBank.floorReached();
-                sleep(1); //Wait one second while the doors latch
-                if (!fireFighter)
-                    openDoors(); //Open the doors
-                else{
-                    while (!doorOpen)
-                        sleep(1);
-                    
-                    openDoors();
-                }
-            }
-        }
+        else
+            floorSecs++;
     }
     
     public void openDoors(){

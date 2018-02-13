@@ -5,7 +5,7 @@
 
 using namespace std;
 
-public class Floor{
+class Floor{
     private static Elevator elev;
     
     public static void init(Elevator elevator){
