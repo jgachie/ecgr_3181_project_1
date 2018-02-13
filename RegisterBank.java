@@ -1,16 +1,11 @@
-#include <cstdlib>
-#include <iostream>
-#include <ctime>
 
-using namespace std;
-
-class RegisterBank{
-    private static int[] x19 = new bool[8]; //Up/down indicator for buttons
-    private static int[] x20 = new int[3]; //Stores destination floors
-    private static Elevator elev;
+public class RegisterBank{
+    private int[] x19 = new bool[8]; //Up/down indicator for buttons
+    private int[] x20 = new int[3]; //Stores destination floors
+    private Elevator elev;
     
-    public static void init(Elevator elevator){
-        elev = elevator;
+    public RegisterBank(Elevator elev){
+        this.elev = elev;
     }
     
     public void getNextFloor(){

@@ -1,12 +1,6 @@
-#include <cstdlib>
-#include <iostream>
-#include <ctime>
-#include <unistd.h>
-#include <thread>
 
-using namespace std;
-
-class Elevator{
+public class Elevator{
+    private RegisterBank register;
     private int currentFloor;
     private int timeSecs = 0;
     private int floorSecs = 0;
@@ -23,6 +17,7 @@ class Elevator{
     
     public Elevator(){
         currentFloor = 0;
+        register = new RegisterBank(this);
     }
     
     public void controller(){

@@ -1,11 +1,5 @@
-#include <cstdlib>
-#include <iostream>
-#include <ctime>
-#include <unistd.h>
 
-using namespace std;
-
-class Floor{
+public class Floor{
     private static Elevator elev;
     
     public static void init(Elevator elevator){
