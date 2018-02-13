@@ -10,20 +10,20 @@ public class Floor{
         if (currentFloor == 3)
             return;
         
-        RegisterBank.illuminateButton(currentFloor + 4);
-        RegisterBank.setFloor(currentFloor);
+        elev.getRegisterBank().illuminateButton(currentFloor + 4);
+        elev.getRegisterBank().setFloor(currentFloor);
     }
     
     public static void callDown(int currentFloor){
-        if (currentFloor = 0)
+        if (currentFloor == 0)
             return;
         
-        RegisterBank.illuminateButton(currentFloor);
-        RegisterBank.setFloor(currentFloor);
+        elev.getRegisterBank().illuminateButton(currentFloor);
+        elev.getRegisterBank().setFloor(currentFloor);
     }
     
     public static void callKey(int currentFloor){
         elev.setKey(true);
-        RegisterBank.setFloor(currentFloor);
+        elev.getRegisterBank().setFloor(currentFloor);
     }
 }

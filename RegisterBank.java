@@ -1,6 +1,6 @@
 
 public class RegisterBank{
-    private int[] x19 = new bool[8]; //Up/down indicator for buttons
+    private boolean[] x19 = new boolean[8]; //Up/down indicator for buttons
     private int[] x20 = new int[3]; //Stores destination floors
     private Elevator elev;
     
@@ -8,13 +8,13 @@ public class RegisterBank{
         this.elev = elev;
     }
     
-    public void getNextFloor(){
+    public int getNextFloor(){
         return x20[0];
     }
     
     public void setFloor(int floorNum){
         //If going up
-        if (elev.getUpDown && floorNum > currentFloor){
+        if (elev.getUpDown() && floorNum > elev.getCurrentFloor()){
             for (int i = 0; i < x20.length; i++){
                 if (x20[i] > floorNum){
                     x20[i + 1] = x20[i];
@@ -24,7 +24,7 @@ public class RegisterBank{
             }
         }
         //If going down
-        else if (!elev.getUpDown && floorNum < currentFloor){
+        else if (!elev.getUpDown() && floorNum < elev.getCurrentFloor()){
             for (int i = 3; i >= 0; i--){
                 if (x20[i] < floorNum){
                     x20[i - 1] = x20[i];
@@ -39,7 +39,7 @@ public class RegisterBank{
         deluminateButton(x20[0]);
         
         for (int i = 0; i < x20.length - 1; i++){
-            x20[i] = x20[i + 1]
+            x20[i] = x20[i + 1];
         }
         
         x20[x20.length - 1] = -1;
