@@ -1,8 +1,8 @@
 public class RegisterBank {
 
-	private int x19 = 0;                               // Lights register. the left-most bit is 7
-	private int[] x1000 = new int[Main.floors.length]; // Destination floors, ordered by selection time
-	private int x20 = 0;                               // Current address, 0 being 0x1000
+	private int x19 = 0;                                   // Lights register. the left-most bit is 7
+	private int[] x1000 = new int[Main.floors.length * 2]; // Destination floors, ordered by selection time
+	private int x20 = 0;                                   // Current address, 0 being 0x1000
 	
 	public RegisterBank() {
 		for (int i = 0; i < x1000.length; i++) {

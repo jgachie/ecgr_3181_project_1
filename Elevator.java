@@ -50,11 +50,13 @@ public class Elevator {
 	public void listen() {
 
 		if (Main.fireCall() != -1) {
+			idleTime = 0;
 			this.move();
 			return;
 		}
 
 		if(Main.fireMode()) {
+			idleTime = 0;
 			if (doorsOpen && doorCloseButton) {
 				doorsOpen = false;	
 			}
@@ -65,6 +67,7 @@ public class Elevator {
 		}
 		else {
 			if (doorsOpen && irWaitSecs < 2) {
+				idleTime = 0;
 				if(!irSensor) {
 					irWaitSecs = 0;
 				}
@@ -74,42 +77,50 @@ public class Elevator {
 				return;
 			}
 			else if (doorsOpen) {
+				idleTime = 0;
 				doorsOpen = false;
 				return;
 			}
 			else { // Doors are closed
 				if (!doorsOpenedOnFloor) {
+					idleTime = 0;
 					doorsOpen = true;
+					return;
 				}
 			}
 		}
+		if (!this.move()) {
+			idleTime++;
+		}
 	}
 	
-	public void move() {
+	public boolean move() {
 		doorsOpenedOnFloor = false;
 		registers.setLights(this.closestFloor(), direction);
 		if (this.atAFloor() && registers.stopAtFloor(this.closestFloor())) {
 			if (!latched) {
 				latched = true;
 				sound = true;
-				return;
+				return true;
 			}
 
 			registers.clearFloor(this.closestFloor());
-			return;
+			return true;
 		}
 
 		if (registers.getNextDirection(this.closestFloor(), direction) == 0) {
-			return;
+			return false;
 		}
+
+		latched = false;
 
 		if (registers.getNextDirection(this.closestFloor(), direction) == 1) {
 			location++;
-			return;
+			return true;
 		}
 		else {
 			location--;
-			return;
+			return true;
 		}
 	}
 

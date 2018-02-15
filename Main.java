@@ -1,7 +1,6 @@
 public class Main {
 
 	public static Elevator elev;
-	public static Floor floor;
 	public static Floor[] floors;
 
 	public static void main(String[] args){

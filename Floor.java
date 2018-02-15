@@ -6,8 +6,8 @@ public class Floor {
 	
 	public Floor(int floorNum) {
 		this.floorNum = floorNum;
-		fireKey = false;
-		fireKeyVisited = false;
+		this.fireKey = false;
+		this.fireKeyVisited = false;
 	}
 	
 	public void callUp() {
@@ -19,14 +19,14 @@ public class Floor {
 	}
 	
 	public void insertKey() {
-		fireKey = true;
-		fireKeyVisited = false;
+		this.fireKey = true;
+		this.fireKeyVisited = false;
 		this.callDown();
 	}
 
 	public void removeKey() {
-		fireKey = false;
-		fireKeyVisited = false;
+		this.fireKey = false;
+		this.fireKeyVisited = false;
 		Main.elev.registers.reset();
 	}
 
