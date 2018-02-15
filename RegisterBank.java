@@ -93,6 +93,9 @@ public class RegisterBank {
 	}
 	
 	public void setLights(int floor, int direction) {
+		if (direction == 0) {
+			return;
+		}
 		int offset = direction == 1 ? 4 : 0;
 		x19 = 0x01 << floor + offset;
 	}
