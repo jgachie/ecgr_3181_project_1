@@ -4,6 +4,6 @@ public class Main{
         Elevator elev = new Elevator();
         Floor.init(elev);
         
-        
+        elev.controller();
     }
 }

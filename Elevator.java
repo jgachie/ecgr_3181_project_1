@@ -5,6 +5,7 @@ public class Elevator{
     private int timeSecs = 0;
     private int floorSecs = 0;
     private int doorSecs = 0;
+    private int doorOpenSecs = 0;
     private int irSecs = 0;
     private boolean sound = false;
     private boolean doors = false; //True when open; false when closed
@@ -55,46 +56,60 @@ public class Elevator{
         
         int nextFloor = register.getNextFloor();
         
-        if (floorSecs == 5){
-            floorSecs = 0;
+        if (floorSecs < 5){
+            floorSecs++;
+            return;
+        }
         
-            if (currentFloor < nextFloor){
-                currentFloor++;
-                if (currentFloor == nextFloor){
-                    register.floorReached();
-                    //sleep(1); //Wait one second while the doors latch
-                    if (!fireFighter)
-                        openDoors(); //Open the doors
-                    else{
-                        while (!doorOpen)
-                            //sleep(1);
-                    
-                        openDoors();
-                    }
+        floorSecs = 0;
+        
+        if (currentFloor < nextFloor){
+            currentFloor++;
+            if (currentFloor == nextFloor){
+                register.floorReached();
+                //sleep(1); //Wait one second while the doors latch
+                if (doorSecs < 1){
+                    doorSecs++;
+                    return;
                 }
-            }
-            else if (currentFloor > nextFloor){
-                currentFloor--;
-                if (currentFloor == register.getNextFloor()){
-                    register.floorReached();
-                    //sleep(1); //Wait one second while the doors latch
-                    if (!fireFighter)
-                        openDoors(); //Open the doors
-                    else{
-                        while (!doorOpen)
-                            //sleep(1);
-                    
-                        openDoors();
-                    }
+                
+                doorSecs = 0;
+                
+                if (!fireFighter)
+                    openDoors(); //Open the doors
+                else{
+                    if (!doorOpen)
+                        return;
+                        
+                    openDoors();
                 }
             }
         }
-        else
-            floorSecs++;
+        else if (currentFloor > nextFloor){
+            currentFloor--;
+            if (currentFloor == register.getNextFloor()){
+                register.floorReached();
+                //sleep(1); //Wait one second while the doors latch
+                if (!fireFighter)
+                    openDoors(); //Open the doors
+                else{
+                    while (!doorOpen)
+                        //sleep(1);
+                
+                    openDoors();
+                }
+            }
+        }
     }
     
     public void openDoors(){
-        //sleep(1); //Wait one second
+        if (doorOpenSecs < 1){
+            doorOpenSecs++;
+            return;
+        }
+        
+        doorOpenSecs = 0;
+        
         sound = true; //Ding the door sound
         doors = true; //Open the doors
         sound = false; //Stop dinging
