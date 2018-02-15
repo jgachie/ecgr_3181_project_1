@@ -1,29 +1,33 @@
+public class Floor {
 
-public class Floor{
-    private static Elevator elev;
-    
-    public static void init(Elevator elevator){
-        elev = elevator;
-    }
-    
-    public static void callUp(int currentFloor){
-        if (currentFloor == 3)
-            return;
-        
-        elev.getRegisterBank().illuminateButton(currentFloor + 4);
-        elev.getRegisterBank().setFloor(currentFloor);
-    }
-    
-    public static void callDown(int currentFloor){
-        if (currentFloor == 0)
-            return;
-        
-        elev.getRegisterBank().illuminateButton(currentFloor);
-        elev.getRegisterBank().setFloor(currentFloor);
-    }
-    
-    public static void callKey(int currentFloor){
-        elev.setKey(true);
-        elev.getRegisterBank().setFloor(currentFloor);
-    }
+	final int floorNum;
+	boolean fireKey;
+	boolean fireKeyVisited;
+	
+	public Floor(int floorNum) {
+		this.floorNum = floorNum;
+		fireKey = false;
+		fireKeyVisited = false;
+	}
+	
+	public void callUp() {
+		Main.elev.registers.setFloorCalled(floorNum, 1);
+	}
+
+	public void callDown() {
+		Main.elev.registers.setFloorCalled(floorNum, -1);
+	}
+	
+	public void insertKey() {
+		fireKey = true;
+		fireKeyVisited = false;
+		this.callDown();
+	}
+
+	public void removeKey() {
+		fireKey = false;
+		fireKeyVisited = false;
+		Main.elev.registers.reset();
+	}
+
 }

@@ -1,190 +1,136 @@
+public class Elevator {
+	
+	RegisterBank registers;
+	                            // Movements are equivalent to seconds
+	int currentFloor;
+	int totalSeconds;           // Seconds since the start of execution
+	int location;               // Where the elevator is in the shaft. 0, 5, 10, 15 are the floors
+	int irWaitSecs;           	// Number of seconds the IR sensor has gone unbroken. Resets when irSensor is false
+	int idleTime;               // Number of seconds the elevator has done nothing. At 30 decide which default floor to visit
+	int direction;              // Direction elevator is moving. -1, 0, 1 are down, still and up respectively
 
-public class Elevator{
-    private RegisterBank register;
-    private int currentFloor;
-    private int timeSecs = 0;
-    private int floorSecs = 0;
-    private int doorSecs = 0;
-    private int doorOpenSecs = 0;
-    private int irSecs = 0;
-    private boolean sound = false;
-    private boolean doors = false; //True when open; false when closed
-    private boolean ir = false;
-    private boolean fireFighter = false;
-    private boolean key = false;
-    private boolean doorOpen = false;
-    private boolean doorClose = false;
-    private boolean upDown = true; //Determines if elevator is going up or down; up if true, down if false
-    
-    public Elevator(){
-        currentFloor = 0;
-        register = new RegisterBank(this);
-    }
-    
-    public void controller(){
-        while (true){
-            while (key && register.getNextFloor() != -1)
-                move();
-            
-            //If the doors are open, close them
-            if (doors && !fireFighter){
-                do {
-                    //sleep(2);
-                } while (!ir);
-                
-                closeDoors();
-            }
-            else if (doors && fireFighter){
-                while (!doorClose)
-                    //sleep(1);
-                    
-                closeDoors();
-            }
-            
-            //If there is another floor call in memory, go to that floor
-            if (register.getNextFloor() != -1)
-                move();
-            else
-                selectFloor();
-                
-            timeSecs++;
-        }
-    }
-    
-    public void move(){
-        //sleep(5); //Wait for five seconds while the elevator reaches the floor
-        
-        int nextFloor = register.getNextFloor();
-        
-        if (floorSecs < 5){
-            floorSecs++;
-            return;
-        }
-        
-        floorSecs = 0;
-        
-        if (currentFloor < nextFloor){
-            currentFloor++;
-            if (currentFloor == nextFloor){
-                register.floorReached();
-                //sleep(1); //Wait one second while the doors latch
-                if (doorSecs < 1){
-                    doorSecs++;
-                    return;
-                }
-                
-                doorSecs = 0;
-                
-                if (!fireFighter)
-                    openDoors(); //Open the doors
-                else{
-                    if (!doorOpen)
-                        return;
-                        
-                    openDoors();
-                }
-            }
-        }
-        else if (currentFloor > nextFloor){
-            currentFloor--;
-            if (currentFloor == register.getNextFloor()){
-                register.floorReached();
-                //sleep(1); //Wait one second while the doors latch
-                if (!fireFighter)
-                    openDoors(); //Open the doors
-                else{
-                    while (!doorOpen)
-                        //sleep(1);
-                
-                    openDoors();
-                }
-            }
-        }
-    }
-    
-    public void openDoors(){
-        if (doorOpenSecs < 1){
-            doorOpenSecs++;
-            return;
-        }
-        
-        doorOpenSecs = 0;
-        
-        sound = true; //Ding the door sound
-        doors = true; //Open the doors
-        sound = false; //Stop dinging
-        ir = true; //Turn on the IR signal
-    }
-    
-    public void closeDoors(){
-        //sleep(1); //Wait one second
-        doors = false;
-    }
-    
-    public void selectFloor(){
-        int newFloor = -1;
-        
-        //Create new thread and have it take in input while this thread waits for notification. If 30 seconds pass and this thread isn't notified, kill the input thread and move on, resetting to floor 1
-        
-        
-        
-        //Have third thread running to count seconds continuously while this thread executes.
-        
-        
-        register.setFloor(newFloor);
-    }
-    
-    public int getInput(){
-        int floor = 0;
-        
-        return floor;
-    }
-    
-    public boolean isSound() {
-        return sound;
-    }
-    
-    public boolean isDoors() {
-        return doors;
-    }
-    
-    public boolean isKey() {
-        return key;
-    }
-    
-    public boolean isDoorClose() {
-        return doorClose;
-    }
-    
-    public boolean isDoorOpen() {
-        return doorOpen;
-    }
-    
-    public int getCurrentFloor() {
-        return currentFloor;
-    }
-    
-    public boolean getUpDown() {
-        return upDown;
-    }
-    
-    public RegisterBank getRegisterBank() {
-        return register;
-    }
-    
-    public void setKey(boolean key){
-        this.key = key;
-    }
-    
-    public void setDoorClose(boolean doorClose) {
-        this.doorClose = doorClose;
-    }
-    
-    public void setDoorOpen(boolean doorOpen) {
-        this.doorOpen = doorOpen;
-    }
-    
-    public void setUpDown(boolean upDown) {
-        this.upDown = upDown;
-    }
+	boolean latched;            // If the elevator has latched on to the floor
+	boolean doorsOpen;          // Status of doors. True if they're open, false if they're closed
+	boolean irSensor;           // IR beam status. True is unbroken, false is broken
+	boolean doorsOpenedOnFloor; // If the doors have been open on that floor before
+	boolean sound;              // If the sound is playing
+
+	boolean doorOpenButton;
+	boolean doorCloseButton;
+
+
+	
+	public Elevator() {
+		this.registers = new RegisterBank();
+
+		this.currentFloor = 0;
+		this.totalSeconds = 0;
+		this.location = 0;
+		this.irWaitSecs = 0;
+		this.idleTime = 0;
+		this.direction = 0 ;
+
+		this.latched = false;
+		this.doorsOpen = false;
+		this.irSensor = false;
+		this.doorsOpenedOnFloor = false;
+		this.sound = false;
+
+		this.doorOpenButton = false;
+		this.doorCloseButton = false;
+	}
+	
+	public void start() {
+		while (true) {
+			this.listen();
+			this.cycle();
+		}
+	}
+
+	public void listen() {
+
+		if (Main.fireCall() != -1) {
+			this.move();
+			return;
+		}
+
+		if(Main.fireMode()) {
+			if (doorsOpen && doorCloseButton) {
+				doorsOpen = false;	
+			}
+			else if (!doorsOpen && doorOpenButton) {
+				doorsOpen = true;
+			}
+			return;
+		}
+		else {
+			if (doorsOpen && irWaitSecs < 2) {
+				if(!irSensor) {
+					irWaitSecs = 0;
+				}
+				else {
+					irWaitSecs++;
+				}
+				return;
+			}
+			else if (doorsOpen) {
+				doorsOpen = false;
+				return;
+			}
+			else { // Doors are closed
+				if (!doorsOpenedOnFloor) {
+					doorsOpen = true;
+				}
+			}
+		}
+	}
+	
+	public void move() {
+		doorsOpenedOnFloor = false;
+		registers.setLights(this.closestFloor(), direction);
+		if (this.atAFloor() && registers.stopAtFloor(this.closestFloor())) {
+			if (!latched) {
+				latched = true;
+				sound = true;
+				return;
+			}
+
+			registers.clearFloor(this.closestFloor());
+			return;
+		}
+
+		if (registers.getNextDirection(this.closestFloor(), direction) == 0) {
+			return;
+		}
+
+		if (registers.getNextDirection(this.closestFloor(), direction) == 1) {
+			location++;
+			return;
+		}
+		else {
+			location--;
+			return;
+		}
+	}
+
+	public int closestFloor() {
+		return (int)Math.round(location / 5.0);
+	}
+
+	public boolean atAFloor() {
+		return location % 5 == 0;
+	}
+	
+	public void cycle() {
+		totalSeconds++;
+		// Log all variables somewhere
+	}
+
+	public void getInputs() {
+		if (false) { // Check if there are any 
+
+		}
+		// Load inputs from a file or something
+	}
+
 }
