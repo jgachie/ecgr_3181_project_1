@@ -2,6 +2,7 @@ public class Main {
 
 	public static Elevator elev;
 	public static Floor[] floors;
+	public static int totalSeconds = 0;
 
 	public static void main(String[] args){
 		floors = new Floor[4];
@@ -9,7 +10,15 @@ public class Main {
 			floors[i] = new Floor(i);
 		}
 		elev = new Elevator();
-		elev.start();
+		while (true) {
+			elev.action();
+			cycle();
+		}
+		
+	}
+
+	public static void cycle() {
+
 	}
 
 	public static int fireCall() {

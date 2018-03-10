@@ -3,7 +3,6 @@ public class Elevator {
 	RegisterBank registers;
 	                            // Movements are equivalent to seconds
 	int currentFloor;
-	int totalSeconds;           // Seconds since the start of execution
 	int location;               // Where the elevator is in the shaft. 0, 5, 10, 15 are the floors
 	int irWaitSecs;           	// Number of seconds the IR sensor has gone unbroken. Resets when irSensor is false
 	int idleTime;               // Number of seconds the elevator has done nothing. At 30 decide which default floor to visit
@@ -24,7 +23,6 @@ public class Elevator {
 		this.registers = new RegisterBank();
 
 		this.currentFloor = 0;
-		this.totalSeconds = 0;
 		this.location = 0;
 		this.irWaitSecs = 0;
 		this.idleTime = 0;
@@ -39,15 +37,8 @@ public class Elevator {
 		this.doorOpenButton = false;
 		this.doorCloseButton = false;
 	}
-	
-	public void start() {
-		while (true) {
-			this.listen();
-			this.cycle();
-		}
-	}
 
-	public void listen() {
+	public void action() {
 
 		if (Main.fireCall() != -1) {
 			idleTime = 0;
@@ -81,7 +72,7 @@ public class Elevator {
 				doorsOpen = false;
 				return;
 			}
-			else { // Doors are closed
+			else if (!doorsOpen) {
 				if (!doorsOpenedOnFloor) {
 					idleTime = 0;
 					doorsOpen = true;
@@ -131,17 +122,4 @@ public class Elevator {
 	public boolean atAFloor() {
 		return location % 5 == 0;
 	}
-	
-	public void cycle() {
-		totalSeconds++;
-		// Log all variables somewhere
-	}
-
-	public void getInputs() {
-		if (false) { // Check if there are any 
-
-		}
-		// Load inputs from a file or something
-	}
-
 }
