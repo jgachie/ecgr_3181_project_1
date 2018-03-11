@@ -1,8 +1,6 @@
 public class Elevator {
 	
 	RegisterBank registers;
-	                            // Movements are equivalent to seconds
-	int currentFloor;
 	int location;               // Where the elevator is in the shaft. 0, 5, 10, 15 are the floors
 	int irWaitSecs;           	// Number of seconds the IR sensor has gone unbroken. Resets when irSensor is false
 	int idleTime;               // Number of seconds the elevator has done nothing. At 30 decide which default floor to visit
@@ -10,28 +8,27 @@ public class Elevator {
 
 	boolean latched;            // If the elevator has latched on to the floor
 	boolean doorsOpen;          // Status of doors. True if they're open, false if they're closed
-	boolean irSensor;           // IR beam status. True is unbroken, false is broken
 	boolean doorsOpenedOnFloor; // If the doors have been open on that floor before
 	boolean sound;              // If the sound is playing
 
+	boolean irSensor;           // IR beam status. True is unbroken, false is broken
 	boolean doorOpenButton;
 	boolean doorCloseButton;
 
 
 	
-	public Elevator() {
+	public Elevator(int floor) {
 		this.registers = new RegisterBank();
 
-		this.currentFloor = 0;
-		this.location = 0;
+		this.location = floor * 5;
 		this.irWaitSecs = 0;
 		this.idleTime = 0;
 		this.direction = 0 ;
 
-		this.latched = false;
+		this.latched = true;
 		this.doorsOpen = false;
 		this.irSensor = false;
-		this.doorsOpenedOnFloor = false;
+		this.doorsOpenedOnFloor = true;
 		this.sound = false;
 
 		this.doorOpenButton = false;
@@ -41,6 +38,11 @@ public class Elevator {
 	public void action() {
 
 		if (Main.fireCall() != -1) {
+			if (doorsOpen) {
+				idleTime = 0;
+				doorsOpen = false;
+				return;
+			}
 			idleTime = 0;
 			this.move();
 			return;
@@ -72,12 +74,11 @@ public class Elevator {
 				doorsOpen = false;
 				return;
 			}
-			else if (!doorsOpen) {
-				if (!doorsOpenedOnFloor) {
-					idleTime = 0;
-					doorsOpen = true;
-					return;
-				}
+			else if (!doorsOpen && !doorsOpenedOnFloor) {
+				idleTime = 0;
+				doorsOpen = true;
+				doorsOpenedOnFloor = true;
+				return;
 			}
 		}
 		if (!this.move()) {
@@ -122,4 +123,9 @@ public class Elevator {
 	public boolean atAFloor() {
 		return location % 5 == 0;
 	}
+
+	public Object[] log() {
+		return new Object[]{location, irWaitSecs, idleTime, direction, latched, doorsOpen, doorsOpenedOnFloor, sound, irSensor, doorOpenButton, doorCloseButton};
+	}
+	
 }

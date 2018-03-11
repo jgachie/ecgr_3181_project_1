@@ -1,0 +1,8 @@
+1/				Starting floor number
+32400/			Starting time, in seconds from midnight
+call 1 0/		Press the up/down button on floor 0-3
+wait 15/		Change nothing for x seconds
+call 0 2/		Add floor 0-3 to destinations
+wait 8/
+irbreak/		Break IR sensor beam
+end/			End scenario by expecting no further inputs

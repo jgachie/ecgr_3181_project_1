@@ -15,7 +15,7 @@ public class RegisterBank {
 	}
 
 	public int getCallDir(int num) {
-		return num & 0x80;
+		return (num & 0x80) >> 7;
 	}
 	
 	public boolean stopAtFloor(int floor) {
@@ -32,6 +32,11 @@ public class RegisterBank {
 	}
 	
 	public void setFloorCalled(int floor, int direction) {
+		if (direction == 0) {
+			setFloorCalled(floor, -1);
+			setFloorCalled(floor, 1);
+			return;
+		}
 		x1000[x20] = floor | ((direction == 1)? 0x80 : 0x00);
 		x20 = incrementAddress(x20);
 	}
@@ -41,7 +46,7 @@ public class RegisterBank {
 			return Main.fireCall() < floor ? -1 : 1;
 		}
 
-		if (currentDirection == -1) {
+		if (currentDirection == -1 || currentDirection == 0) {
 			if (destinationBelow(floor, -1)) {
 				return -1;
 			}
@@ -62,7 +67,7 @@ public class RegisterBank {
 
 	public boolean destinationAbove(int floor, int currentDirection) {
 		for (int i = 0; i < x1000.length; i++) {
-			if (floor < getFloorNum(x1000[i]) && currentDirection == getCallDir(x1000[i])) {
+			if (floor < getFloorNum(x1000[i]) && (currentDirection == getCallDir(x1000[i]) || currentDirection == 0)) {
 				return true;
 			}
 		}
@@ -71,7 +76,7 @@ public class RegisterBank {
 
 	public boolean destinationBelow(int floor, int currentDirection) {
 		for (int i = 0; i < x1000.length; i++) {
-			if (floor > getFloorNum(x1000[i]) && (currentDirection == getCallDir(x1000[i]))) {
+			if (floor > getFloorNum(x1000[i]) && (currentDirection == getCallDir(x1000[i]) || currentDirection == 0)) {
 				return true;
 			}
 		}
@@ -106,8 +111,15 @@ public class RegisterBank {
 			x1000[i] = -1;
 		}
 		x20 = 0;
-		setFloorCalled(1, -1); // Go to default floor
-		setFloorCalled(1, 1);
+
+		// Go to default floor for current time
+		if (Main.currentTime < 50400) {
+			setFloorCalled(1, 0);
+		}
+		else {
+			setFloorCalled(2, 0);
+		}
+		
 	}
 
 	public boolean isRequest() {
@@ -117,6 +129,10 @@ public class RegisterBank {
 			}
 		}
 		return false;
+	}
+
+	public Object[] log() {
+		return new Object[]{x19, x1000, x20};
 	}
 
 }

@@ -10,18 +10,10 @@ public class Floor {
 		this.fireKeyVisited = false;
 	}
 	
-	public void callUp() {
-		Main.elev.registers.setFloorCalled(floorNum, 1);
-	}
-
-	public void callDown() {
-		Main.elev.registers.setFloorCalled(floorNum, -1);
-	}
-	
 	public void insertKey() {
 		this.fireKey = true;
 		this.fireKeyVisited = false;
-		this.callDown();
+		Main.elev.registers.setFloorCalled(floorNum, -1);
 	}
 
 	public void removeKey() {
@@ -30,4 +22,7 @@ public class Floor {
 		Main.elev.registers.reset();
 	}
 
+	public Object[] log() {
+		return new Object[]{fireKey, fireKeyVisited};
+	}
 }
