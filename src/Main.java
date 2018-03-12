@@ -15,7 +15,7 @@ public class Main {
 
 	public static List<String> scenario;
 
-	public static int currentTime = 0;
+	public static int time = 0;
 
 	public static int instruction = 0;
 	public static int waitTimer = 0;
@@ -40,12 +40,12 @@ public class Main {
 
 		elev = new Elevator(parseInt(interpret(scenario.get(instruction++))[0]));
 
-		currentTime = parseInt(interpret(scenario.get(instruction++))[0]);
+		time = parseInt(interpret(scenario.get(instruction++))[0]);
 		while (true) {
+			log();
 			cycle();
 			elev.action();
-			log();
-			currentTime++;
+			time++;
 		}
 	}
 
@@ -53,7 +53,7 @@ public class Main {
 		elev.irSensor = true;
 		elev.doorOpenButton = false;
 		elev.doorCloseButton = false;
-		while (waitTimer-- > 0) {
+		while (waitTimer --> 0) {
 			return;
 		}
 		while (true) {
@@ -84,22 +84,38 @@ public class Main {
 
 	public static void log() {
 		Object[] values = flatten(new Object[]{elev.log(), elev.registers.log()}).toArray();
+
+		valuesLists[0].add(time-32400);
 		for (int i = 0; i < values.length; i++) {
-			valuesLists[i].add(values[i]);
+			valuesLists[i+1].add(values[i]);
 		}
 	}
 
+
+
 	public static void flush() throws Exception {
-		String[] names = {"location", "irWaitSecs", "idleTime", "direction", "latched", "doorsOpen", "doorsOpenedOnFloor", "sound", "irSensor", "doorOpenButton", "doorCloseButton", "x19", "x1000", "x20", "", "", ""};
+		String[] names = {"time", "location", "irWaitSecs", "idleTime", "direction", "latched", "doorsOpen", "doorsOpenedOnFloor", "sound", "irSensor", "doorOpenButton", "doorCloseButton", "x19", "x20", "x1000", "", "", ""};
 		PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
 		for (int i = 0; i < valuesLists.length; i++) {
-			String str = names[i] + "\t\t\t\t";
+			String str = rightPad(names[i], 19) + "\t";
 			for (Object ob : valuesLists[i]) {
-				str += ob.toString() + "\t";
+				if (ob instanceof int[]) {
+					str += Arrays.toString((int[])ob) + "\t";
+				} else {
+					str += ob.toString() + "\t";
+				}
 			}
+			str = str.replaceAll("true", "1").replaceAll("false", "0");
 			writer.println(str);
 		}
 		writer.close();
+	}
+
+	public static String rightPad(String str, int length) {
+		while (str.length() < length) {
+			str += " ";
+		}
+		return str;
 	}
 
 	public static Stream<Object> flatten(Object[] array) {
@@ -111,7 +127,7 @@ public class Main {
 	}
 
 	public static String[] interpret(String line) {
-		return line.substring(0, line.indexOf("/")).split(" ");
+		return line.contains("/")?line.substring(0, line.indexOf("/")).split(" ") : line.split(" ");
 	}
 
 	public static int fireCall() {

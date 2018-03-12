@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class RegisterBank {
 
 	private int x19 = 0;                                   // Lights register. the left-most bit is 7
@@ -11,7 +13,8 @@ public class RegisterBank {
 	}
 
 	public int getFloorNum(int num) {
-		return num & ~(0x80);
+		num = num & ~(0x80);
+		return num;
 	}
 
 	public int getCallDir(int num) {
@@ -24,7 +27,7 @@ public class RegisterBank {
 		}
 
 		for (int i = 0; i < x1000.length; i++) {
-			if (floor == getFloorNum(x1000[i]) && Main.elev.direction == getCallDir(x1000[i])) {
+			if (floor == getFloorNum(x1000[i]) && (Main.elev.direction == getCallDir(x1000[i]) || Main.elev.direction == 0)) {
 				return true;
 			}
 		}
@@ -41,42 +44,48 @@ public class RegisterBank {
 		x20 = incrementAddress(x20);
 	}
 
-	public int getNextDirection(int floor, int currentDirection) {
+	public int getNextDirection(int location, int currentDirection) {
 		if (Main.fireCall() != -1) {
-			return Main.fireCall() < floor ? -1 : 1;
+			return Main.fireCall()*5 < location ? -1 : 1;
 		}
 
 		if (currentDirection == -1 || currentDirection == 0) {
-			if (destinationBelow(floor, -1)) {
+			if (destinationBelow(location, -1)) {
 				return -1;
 			}
-			else if (destinationAbove(floor, -1)) {
+			else if (destinationAbove(location, -1)) {
 				return 1;
 			}
 		}
-		else if (currentDirection == 1) {
-			if(destinationAbove(floor, 1)) {
+		else if (currentDirection == 1 || currentDirection == 0) {
+			if(destinationAbove(location, 1)) {
 				return 1;
 			}
-			else if (destinationBelow(floor, 1)) {
+			else if (destinationBelow(location, 1)) {
 				return -1;
 			}
 		}
 		return 0; // No floors in the queue
 	}
 
-	public boolean destinationAbove(int floor, int currentDirection) {
+	public boolean destinationAbove(int location, int currentDirection) {
+		if (location == 20) {
+			return false;
+		}
 		for (int i = 0; i < x1000.length; i++) {
-			if (floor < getFloorNum(x1000[i]) && (currentDirection == getCallDir(x1000[i]) || currentDirection == 0)) {
+			if (x1000[i] != -1 && Math.ceil(location / 5.0) <= getFloorNum(x1000[i])) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean destinationBelow(int floor, int currentDirection) {
+	public boolean destinationBelow(int location, int currentDirection) {
+		if (location == 0) {
+			return false;
+		}
 		for (int i = 0; i < x1000.length; i++) {
-			if (floor > getFloorNum(x1000[i]) && (currentDirection == getCallDir(x1000[i]) || currentDirection == 0)) {
+			if (x1000[i] != -1 && Math.floor(location / 5.0) >= getFloorNum(x1000[i])) {
 				return true;
 			}
 		}
@@ -113,7 +122,7 @@ public class RegisterBank {
 		x20 = 0;
 
 		// Go to default floor for current time
-		if (Main.currentTime < 50400) {
+		if (Main.time < 50400) {
 			setFloorCalled(1, 0);
 		}
 		else {
@@ -132,7 +141,11 @@ public class RegisterBank {
 	}
 
 	public Object[] log() {
-		return new Object[]{x19, x1000, x20};
+		return new Object[]{x19, x20, Arrays.copyOf(x1000, x1000.length)};
+	}
+
+	public int[] logArray() {
+		return Arrays.copyOf(x1000, x1000.length);
 	}
 
 }

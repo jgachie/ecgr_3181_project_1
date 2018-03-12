@@ -12,6 +12,7 @@ public class Elevator {
 	boolean sound;              // If the sound is playing
 
 	boolean irSensor;           // IR beam status. True is unbroken, false is broken
+	boolean dorment;
 	boolean doorOpenButton;
 	boolean doorCloseButton;
 
@@ -23,20 +24,21 @@ public class Elevator {
 		this.location = floor * 5;
 		this.irWaitSecs = 0;
 		this.idleTime = 0;
-		this.direction = 0 ;
 
 		this.latched = true;
 		this.doorsOpen = false;
-		this.irSensor = false;
+		this.irSensor = true;
 		this.doorsOpenedOnFloor = true;
 		this.sound = false;
-
+		this.dorment = false;
 		this.doorOpenButton = false;
 		this.doorCloseButton = false;
+
+		this.direction = registers.getNextDirection(this.location, 0);
 	}
 
 	public void action() {
-
+		sound = false;
 		if (Main.fireCall() != -1) {
 			if (doorsOpen) {
 				idleTime = 0;
@@ -47,66 +49,73 @@ public class Elevator {
 			this.move();
 			return;
 		}
-
-		if(Main.fireMode()) {
-			idleTime = 0;
-			if (doorsOpen && doorCloseButton) {
-				doorsOpen = false;	
-			}
-			else if (!doorsOpen && doorOpenButton) {
-				doorsOpen = true;
-			}
-			return;
-		}
-		else {
-			if (doorsOpen && irWaitSecs < 2) {
+		if(atAFloor() && latched) {
+			if (Main.fireMode()) {
 				idleTime = 0;
-				if(!irSensor) {
+				if (doorsOpen && doorCloseButton) {
+					doorsOpen = false;
+				} else if (!doorsOpen && doorOpenButton) {
+					doorsOpen = true;
+				}
+				return;
+			} else {
+				if (doorsOpen && irWaitSecs < 2) {
+					idleTime = 0;
+					if (!irSensor) {
+						irWaitSecs = 0;
+					} else {
+						irWaitSecs++;
+					}
+					return;
+				} else if (doorsOpen) {
+					idleTime = 0;
+					doorsOpen = false;
+					return;
+				} else if (!doorsOpen && !doorsOpenedOnFloor) {
+					idleTime = 0;
 					irWaitSecs = 0;
+					doorsOpen = true;
+					doorsOpenedOnFloor = true;
+					return;
 				}
-				else {
-					irWaitSecs++;
-				}
-				return;
-			}
-			else if (doorsOpen) {
-				idleTime = 0;
-				doorsOpen = false;
-				return;
-			}
-			else if (!doorsOpen && !doorsOpenedOnFloor) {
-				idleTime = 0;
-				doorsOpen = true;
-				doorsOpenedOnFloor = true;
-				return;
 			}
 		}
 		if (!this.move()) {
 			idleTime++;
 		}
+		else {
+			dorment = false;
+		}
+		if (idleTime > 30 && !dorment) {
+			dorment = true;
+			if (Main.time < 50400) {
+				registers.setFloorCalled(1, 0);
+			} else {
+				registers.setFloorCalled(2, 0);
+			}
+		}
+		direction = registers.getNextDirection(this.location, direction);
 	}
 	
 	public boolean move() {
-		doorsOpenedOnFloor = false;
 		registers.setLights(this.closestFloor(), direction);
 		if (this.atAFloor() && registers.stopAtFloor(this.closestFloor())) {
 			if (!latched) {
 				latched = true;
+				doorsOpenedOnFloor = false;
 				sound = true;
-				return true;
 			}
-
 			registers.clearFloor(this.closestFloor());
 			return true;
 		}
 
-		if (registers.getNextDirection(this.closestFloor(), direction) == 0) {
+		if (direction == 0) {
 			return false;
 		}
 
 		latched = false;
 
-		if (registers.getNextDirection(this.closestFloor(), direction) == 1) {
+		if (direction == 1) {
 			location++;
 			return true;
 		}
