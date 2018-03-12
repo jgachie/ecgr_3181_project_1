@@ -71,6 +71,14 @@ public class Main {
 					System.out.println("IRBreak");
 					elev.irSensor = false;
 					break;
+				case "firekey":
+					if(tokens[1].equals("insert")) {
+						floors[parseInt(tokens[2])].insertKey();
+					}
+					else {
+						floors[parseInt(tokens[2])].removeKey();
+					}
+					break;
 				case "wait":
 					System.out.println("Wait");
 					waitTimer = parseInt(tokens[1]);
