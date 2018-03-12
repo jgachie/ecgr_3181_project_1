@@ -73,7 +73,7 @@ public class RegisterBank {
 			return false;
 		}
 		for (int i = 0; i < x1000.length; i++) {
-			if (x1000[i] != -1 && Math.ceil(location / 5.0) <= getFloorNum(x1000[i])) {
+			if (x1000[i] != -1 && location < getFloorNum(x1000[i]) * 5) {
 				return true;
 			}
 		}
@@ -85,7 +85,7 @@ public class RegisterBank {
 			return false;
 		}
 		for (int i = 0; i < x1000.length; i++) {
-			if (x1000[i] != -1 && Math.floor(location / 5.0) >= getFloorNum(x1000[i])) {
+			if (x1000[i] != -1 && location > getFloorNum(x1000[i]) * 5) {
 				return true;
 			}
 		}

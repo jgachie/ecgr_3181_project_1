@@ -12,7 +12,6 @@ public class Elevator {
 	boolean sound;              // If the sound is playing
 
 	boolean irSensor;           // IR beam status. True is unbroken, false is broken
-	boolean dorment;
 	boolean doorOpenButton;
 	boolean doorCloseButton;
 
@@ -30,7 +29,6 @@ public class Elevator {
 		this.irSensor = true;
 		this.doorsOpenedOnFloor = true;
 		this.sound = false;
-		this.dorment = false;
 		this.doorOpenButton = false;
 		this.doorCloseButton = false;
 
@@ -41,17 +39,14 @@ public class Elevator {
 		sound = false;
 		if (Main.fireCall() != -1) {
 			if (doorsOpen) {
-				idleTime = 0;
 				doorsOpen = false;
 				return;
 			}
-			idleTime = 0;
 			this.move();
 			return;
 		}
 		if(atAFloor() && latched) {
 			if (Main.fireMode()) {
-				idleTime = 0;
 				if (doorsOpen && doorCloseButton) {
 					doorsOpen = false;
 				} else if (!doorsOpen && doorOpenButton) {
@@ -60,7 +55,6 @@ public class Elevator {
 				return;
 			} else {
 				if (doorsOpen && irWaitSecs < 2) {
-					idleTime = 0;
 					if (!irSensor) {
 						irWaitSecs = 0;
 					} else {
@@ -68,11 +62,9 @@ public class Elevator {
 					}
 					return;
 				} else if (doorsOpen) {
-					idleTime = 0;
 					doorsOpen = false;
 					return;
 				} else if (!doorsOpen && !doorsOpenedOnFloor) {
-					idleTime = 0;
 					irWaitSecs = 0;
 					doorsOpen = true;
 					doorsOpenedOnFloor = true;
@@ -80,14 +72,9 @@ public class Elevator {
 				}
 			}
 		}
-		if (!this.move()) {
-			idleTime++;
-		}
-		else {
-			dorment = false;
-		}
-		if (idleTime > 30 && !dorment) {
-			dorment = true;
+		this.move();
+
+		if (idleTime == 30) {
 			if (Main.time < 50400) {
 				registers.setFloorCalled(1, 0);
 			} else {

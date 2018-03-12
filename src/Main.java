@@ -50,12 +50,14 @@ public class Main {
 	}
 
 	public static void cycle() throws Exception {
+		elev.idleTime++;
 		elev.irSensor = true;
 		elev.doorOpenButton = false;
 		elev.doorCloseButton = false;
 		while (waitTimer --> 0) {
 			return;
 		}
+		elev.idleTime = 0;
 		while (true) {
 			String[] tokens = interpret(scenario.get(instruction++));
 			switch (tokens[0]) {
