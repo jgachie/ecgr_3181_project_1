@@ -19,6 +19,7 @@ public class Main {
 
 	public static int instruction = 0;
 	public static int waitTimer = 0;
+	public static String scenarioNumber = "";
 
 	public static ArrayList<Object>[] valuesLists = (ArrayList<Object>[])new ArrayList[16];
 
@@ -27,7 +28,8 @@ public class Main {
 			System.out.println("The single argument should be the scenario number to load.");
 			return;
 		}
-		scenario = Files.readAllLines(new File("Scenario" + args[0] + ".txt").toPath());
+		scenarioNumber = args[0];
+		scenario = Files.readAllLines(new File("Scenario" + scenarioNumber + ".txt").toPath());
 
 		for (int i = 0; i<valuesLists.length; i++) {
 			valuesLists[i] = new ArrayList<>();
@@ -97,7 +99,7 @@ public class Main {
 
 	public static void flush() throws Exception {
 		String[] names = {"time", "location", "irWaitSecs", "idleTime", "direction", "latched", "doorsOpen", "doorsOpenedOnFloor", "sound", "irSensor", "doorOpenButton", "doorCloseButton", "x19", "x20", "x1000", "", "", ""};
-		PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
+		PrintWriter writer = new PrintWriter("Scenario" + scenarioNumber + "Output.txt", "UTF-8");
 		for (int i = 0; i < valuesLists.length; i++) {
 			String str = rightPad(names[i], 19) + "\t";
 			for (Object ob : valuesLists[i]) {
