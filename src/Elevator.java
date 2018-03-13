@@ -52,12 +52,12 @@ public class Elevator {
 			return;
 		}
 		if(atAFloor() && latched) {
-			if (!doorsOpenedForFire) {
-				doorsOpen = true;
-				doorsOpenedForFire = true;
-				return;
-			}
 			if (Main.fireMode()) {
+				if (!doorsOpenedForFire) {
+					doorsOpen = true;
+					doorsOpenedForFire = true;
+					return;
+				}
 				if (doorsOpen && doorCloseButton) {
 					doorsOpen = false;
 					doorCloseButton = false;
