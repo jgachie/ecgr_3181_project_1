@@ -164,6 +164,7 @@ public class Main {
 	}
 
 	public static int fireCall() {
+
 		for (int i = 0; i < floors.length; i++) {
 			if (floors[i].fireKey && !floors[i].fireKeyVisited) {
 				return i;

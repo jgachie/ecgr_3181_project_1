@@ -1,7 +1,7 @@
 2
 50340
 call 1 1
-wait 14
+wait 7
 irbreak
 wait 5
 call 0 3

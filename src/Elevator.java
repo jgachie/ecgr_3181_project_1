@@ -14,6 +14,7 @@ public class Elevator {
 	boolean irSensor;           // IR beam status. True is unbroken, false is broken
 	boolean doorOpenButton;
 	boolean doorCloseButton;
+	boolean doorsOpenedForFire;
 
 
 	
@@ -31,6 +32,7 @@ public class Elevator {
 		this.sound = false;
 		this.doorOpenButton = false;
 		this.doorCloseButton = false;
+		this.doorsOpenedForFire = false;
 
 		this.nextDirection = registers.getNextDirection(this.location, 0);
 	}
@@ -39,12 +41,18 @@ public class Elevator {
 		sound = false;
 		registers.setLights(this.closestFloor(), nextDirection);
 		if (Main.fireCall() != -1) {
+			this.doorsOpenedForFire = false;
 			registers.clearQueue();
 			if (doorsOpen) {
 				doorsOpen = false;
 				return;
 			}
 			this.move();
+			nextDirection = registers.getNextDirection(this.location, this.nextDirection);
+			return;
+		}
+		if (!doorsOpenedForFire) {
+			doorsOpen = true;
 			return;
 		}
 		if(atAFloor() && latched) {
