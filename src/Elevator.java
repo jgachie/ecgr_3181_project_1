@@ -51,11 +51,12 @@ public class Elevator {
 			nextDirection = registers.getNextDirection(this.location, this.nextDirection);
 			return;
 		}
-		if (!doorsOpenedForFire) {
-			doorsOpen = true;
-			return;
-		}
 		if(atAFloor() && latched) {
+			if (!doorsOpenedForFire) {
+				doorsOpen = true;
+				doorsOpenedForFire = true;
+				return;
+			}
 			if (Main.fireMode()) {
 				if (doorsOpen && doorCloseButton) {
 					doorsOpen = false;
