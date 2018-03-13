@@ -49,7 +49,15 @@ public class RegisterBank {
 
 	public int getNextDirection(int location, int currentDirection) {
 		if (Main.fireCall() != -1) {
-			return Main.fireCall()*5 < location ? -1 : 1;
+			if (Main.fireCall()*5 < location) {
+				return -1;
+			}
+			else if (Main.fireCall()*5 > location) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
 		}
 
 		if (currentDirection == -1 || currentDirection == 0) {

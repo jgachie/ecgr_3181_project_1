@@ -10,7 +10,7 @@ wait 2
 call 0 1
 wait 5
 firekey insert 0
-wait 12
+wait 11
 wait 2
 irbreak
 wait 2
