@@ -114,6 +114,13 @@ public class RegisterBank {
 		x19 = 0x01 << floor + offset;
 	}
 
+	public void clearQueue() {
+		for (int i = 0; i < x1000.length; i++) {
+			x1000[i] = -1;
+		}
+		x20 = 0;
+	}
+
 	public void reset() {
 		x19 = 0;
 		for (int i = 0; i < x1000.length; i++) {

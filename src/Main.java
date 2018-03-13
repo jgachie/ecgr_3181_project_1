@@ -16,6 +16,7 @@ public class Main {
 	public static List<String> scenario;
 
 	public static int time = 0;
+	public static int startTime = 0;
 
 	public static int instruction = 0;
 	public static int waitTimer = 0;
@@ -42,7 +43,7 @@ public class Main {
 
 		elev = new Elevator(parseInt(interpret(scenario.get(instruction++))[0]));
 
-		time = parseInt(interpret(scenario.get(instruction++))[0]);
+		startTime = time = parseInt(interpret(scenario.get(instruction++))[0]);
 		while (true) {
 			log();
 			cycle();
@@ -72,11 +73,19 @@ public class Main {
 					elev.irSensor = false;
 					break;
 				case "firekey":
-					if(tokens[1].equals("insert")) {
+					if (tokens[1].equals("insert")) {
 						floors[parseInt(tokens[2])].insertKey();
 					}
 					else {
 						floors[parseInt(tokens[2])].removeKey();
+					}
+					break;
+				case "door":
+					if (tokens[1].equals("open")) {
+						elev.doorOpenButton = true;
+					}
+					else {
+						elev.doorCloseButton = true;
 					}
 					break;
 				case "wait":
@@ -97,7 +106,7 @@ public class Main {
 	public static void log() {
 		Object[] values = flatten(new Object[]{elev.log(), elev.registers.log()}).toArray();
 
-		valuesLists[0].add(time-32400);
+		valuesLists[0].add(time-startTime);
 		for (int i = 0; i < values.length; i++) {
 			valuesLists[i+1].add(values[i]);
 		}

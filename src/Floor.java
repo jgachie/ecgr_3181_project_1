@@ -13,7 +13,6 @@ public class Floor {
 	public void insertKey() {
 		this.fireKey = true;
 		this.fireKeyVisited = false;
-		Main.elev.registers.setFloorCalled(floorNum, -1);
 	}
 
 	public void removeKey() {

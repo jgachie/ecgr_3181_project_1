@@ -38,6 +38,7 @@ public class Elevator {
 	public void action() {
 		sound = false;
 		if (Main.fireCall() != -1) {
+			registers.clearQueue();
 			if (doorsOpen) {
 				doorsOpen = false;
 				return;
@@ -49,8 +50,10 @@ public class Elevator {
 			if (Main.fireMode()) {
 				if (doorsOpen && doorCloseButton) {
 					doorsOpen = false;
+					doorCloseButton = false;
 				} else if (!doorsOpen && doorOpenButton) {
 					doorsOpen = true;
+					doorOpenButton = false;
 				}
 				return;
 			} else {
