@@ -15,5 +15,5 @@ wait 2
 call 2 0
 wait 1
 call 0 0
-wait 50
+wait 60
 end

@@ -125,7 +125,7 @@ public class Main {
 
 
 	public static void flush() throws Exception {
-		String[] names = {"time", "location", "irWaitSecs", "idleTime", "direction", "latched", "doorsOpen", "doorsOpenedOnFloor", "sound", "irSensor", "doorOpenButton", "doorCloseButton", "x19", "x20", "x1000", "waitTimer", "", ""};
+		String[] names = {"time", "location", "irWaitSecs", "idleTime", "nextDirection", "latched", "doorsOpen", "doorsOpenedOnFloor", "sound", "irSensor", "doorOpenButton", "doorCloseButton", "x19", "x20", "x1000", "waitTimer", "", ""};
 		PrintWriter writer = new PrintWriter("Scenario" + scenarioNumber + "Output.txt", "UTF-8");
 		for (int i = 0; i < valuesLists.length; i++) {
 			StringBuilder str = new StringBuilder(rightPad(names[i], 19) + "\t");

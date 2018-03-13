@@ -4,7 +4,7 @@ public class Elevator {
 	int location;               // Where the elevator is in the shaft. 0, 5, 10, 15 are the floors
 	int irWaitSecs;           	// Number of seconds the IR sensor has gone unbroken. Resets when irSensor is false
 	int idleTime;               // Number of seconds the elevator has done nothing. At 30 decide which default floor to visit
-	int direction;              // Direction elevator is moving. -1, 0, 1 are down, still and up respectively
+	int nextDirection;              // Direction elevator is moving. -1, 0, 1 are down, still and up respectively
 
 	boolean latched;            // If the elevator has latched on to the floor
 	boolean doorsOpen;          // Status of doors. True if they're open, false if they're closed
@@ -32,12 +32,12 @@ public class Elevator {
 		this.doorOpenButton = false;
 		this.doorCloseButton = false;
 
-		this.direction = registers.getNextDirection(this.location, 0);
+		this.nextDirection = registers.getNextDirection(this.location, 0);
 	}
 
 	public void action() {
 		sound = false;
-		registers.setLights(this.closestFloor(), direction);
+		registers.setLights(this.closestFloor(), nextDirection);
 		if (Main.fireCall() != -1) {
 			registers.clearQueue();
 			if (doorsOpen) {
@@ -81,27 +81,27 @@ public class Elevator {
 		if (idleTime == 30) {
 			registers.reset();
 		}
-		direction = registers.getNextDirection(this.location, direction);
+		nextDirection = registers.getNextDirection(this.location, this.nextDirection);
 	}
 	
 	public void move() {
-		if (this.atAFloor() && registers.stopAtFloor(this.closestFloor())) {
+		if (this.atAFloor() && registers.stopAtFloor(this.closestFloor(), this.nextDirection)) {	
 			if (!latched) {
+				registers.clearFloor(this.closestFloor(), this.nextDirection);
 				latched = true;
 				doorsOpenedOnFloor = false;
 				sound = true;
-			}
-			registers.clearFloor(this.closestFloor());
+			}	
 			return;
 		}
 
-		if (direction == 0) {
+		if (nextDirection == 0) {
 			return;
 		}
 
 		latched = false;
 
-		if (direction == 1) {
+		if (nextDirection == 1) {
 			location++;
 		}
 		else {
@@ -118,7 +118,7 @@ public class Elevator {
 	}
 
 	public Object[] log() {
-		return new Object[]{location, irWaitSecs, idleTime, direction, latched, doorsOpen, doorsOpenedOnFloor, sound, irSensor, doorOpenButton, doorCloseButton};
+		return new Object[]{location, irWaitSecs, idleTime, nextDirection, latched, doorsOpen, doorsOpenedOnFloor, sound, irSensor, doorOpenButton, doorCloseButton};
 	}
 	
 }

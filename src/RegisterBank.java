@@ -25,7 +25,7 @@ public class RegisterBank {
 		return (num & 0x90) >> 7 == 1;
 	}
 	
-	public boolean stopAtFloor(int floor) {
+	public boolean stopAtFloor(int floor, int direction) {
 		if (Main.floors[floor].fireKey && !Main.floors[floor].fireKeyVisited) {
 			return true;
 		}
@@ -34,7 +34,7 @@ public class RegisterBank {
 			if (floor != getFloorNum(x1000[i]) ) {
 				continue;
 			}
-			if (internalDestination(x1000[i]) || Main.elev.direction == getCallDir(x1000[i]) || Main.elev.direction == 0) {
+			if (internalDestination(x1000[i]) || direction == getCallDir(x1000[i]) || direction == 0) {
 				return true;
 			}
 		}
@@ -95,12 +95,11 @@ public class RegisterBank {
 		return false;
 	}
 	
-	public void clearFloor(int floor) {
+	public void clearFloor(int floor, int direction) {
 		Main.floors[floor].fireKeyVisited = true;
 		for (int i = 0; i < x1000.length; i++) {
-			if (floor == getFloorNum(x1000[i])) {
+			if (floor == getFloorNum(x1000[i]) && (getCallDir(x1000[i]) == direction || internalDestination(x1000[i]))) {
 				x1000[i] = -1;
-				break;
 			}
 		}
 	}
