@@ -1,0 +1,30 @@
+2
+50340
+call 1 1
+wait 14
+irbreak
+wait 5
+call 0 3
+wait 16
+wait 2
+call 0 1
+wait 5
+firekey insert 0
+wait 12
+wait 2
+irbreak
+wait 2
+door close
+call 0 3
+wait 16
+door open
+wait 6
+door close
+wait 2
+call 0 0
+wait 16
+door open
+wait 2
+firekey remove 0
+wait 40
+end
