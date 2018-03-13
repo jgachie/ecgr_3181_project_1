@@ -22,7 +22,7 @@ public class Main {
 	public static int waitTimer = 0;
 	public static String scenarioNumber = "";
 
-	public static ArrayList<Object>[] valuesLists = (ArrayList<Object>[])new ArrayList[16];
+	public static ArrayList<Object>[] valuesLists = (ArrayList<Object>[])new ArrayList[17];
 
 	public static void main(String[] args) throws Exception {
 		if (args.length != 1) {
@@ -57,16 +57,20 @@ public class Main {
 		elev.irSensor = true;
 		elev.doorOpenButton = false;
 		elev.doorCloseButton = false;
+		if (elev.registers.isRequest()) {
+			elev.idleTime = 0;
+		}
 		if (waitTimer > 0) {
 			waitTimer--;
 			return;
 		}
 		elev.idleTime = 0;
+
 		while (true) {
 			String[] tokens = interpret(scenario.get(instruction++));
 			switch (tokens[0]) {
 				case "call": 
-					System.out.println("Called");
+					System.out.println("Call");
 					elev.registers.setFloorCalled(parseInt(tokens[2]), parseInt(tokens[1]));
 					break;
 				case "irbreak":
@@ -74,6 +78,7 @@ public class Main {
 					elev.irSensor = false;
 					break;
 				case "firekey":
+					System.out.println("Firekey");
 					if (tokens[1].equals("insert")) {
 						floors[parseInt(tokens[2])].insertKey();
 					}
@@ -82,6 +87,7 @@ public class Main {
 					}
 					break;
 				case "door":
+					System.out.println("Door");
 					if (tokens[1].equals("open")) {
 						elev.doorOpenButton = true;
 					}
@@ -95,13 +101,15 @@ public class Main {
 					return;
 				case "end":
 					System.out.println("End");
-					System.out.println("Scenario ended without issue");
 					flush();
+					System.out.println("Scenario ended without issue");
 					System.exit(0);
 				default:
 					throw new RuntimeException("Bad command token");
 			}
 		}
+
+
 	}
 
 	public static void log() {
@@ -111,32 +119,35 @@ public class Main {
 		for (int i = 0; i < values.length; i++) {
 			valuesLists[i+1].add(values[i]);
 		}
+		valuesLists[values.length+1].add(waitTimer);
 	}
 
 
 
 	public static void flush() throws Exception {
-		String[] names = {"time", "location", "irWaitSecs", "idleTime", "direction", "latched", "doorsOpen", "doorsOpenedOnFloor", "sound", "irSensor", "doorOpenButton", "doorCloseButton", "x19", "x20", "x1000", "", "", ""};
+		String[] names = {"time", "location", "irWaitSecs", "idleTime", "direction", "latched", "doorsOpen", "doorsOpenedOnFloor", "sound", "irSensor", "doorOpenButton", "doorCloseButton", "x19", "x20", "x1000", "waitTimer", "", ""};
 		PrintWriter writer = new PrintWriter("Scenario" + scenarioNumber + "Output.txt", "UTF-8");
 		for (int i = 0; i < valuesLists.length; i++) {
-			String str = rightPad(names[i], 19) + "\t";
+			StringBuilder str = new StringBuilder(rightPad(names[i], 19) + "\t");
 			for (Object ob : valuesLists[i]) {
 				if (ob instanceof int[]) {
-					str += Arrays.toString((int[])ob) + "\t";
+					str.append(Arrays.toString((int[]) ob)).append("\t");
 				} else {
-					str += ob.toString() + "\t";
+					str.append(ob.toString()).append("\t");
 				}
 			}
-			str = str.replaceAll("true", "1").replaceAll("false", "0");
+			str = new StringBuilder(str.toString().replaceAll("true", "1").replaceAll("false", "0"));
 			writer.println(str);
 		}
 		writer.close();
 	}
 
 	public static String rightPad(String str, int length) {
-		while (str.length() < length) {
-			str += " ";
+		StringBuilder strBuilder = new StringBuilder(str);
+		while (strBuilder.length() < length) {
+			strBuilder.append(" ");
 		}
+		str = strBuilder.toString();
 		return str;
 	}
 

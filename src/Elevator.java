@@ -37,6 +37,7 @@ public class Elevator {
 
 	public void action() {
 		sound = false;
+		registers.setLights(this.closestFloor(), direction);
 		if (Main.fireCall() != -1) {
 			registers.clearQueue();
 			if (doorsOpen) {
@@ -57,17 +58,17 @@ public class Elevator {
 				}
 				return;
 			} else {
-				if (doorsOpen && irWaitSecs < 2) {
+				if (doorsOpen && irWaitSecs < 2) { // Doors are open but wait time isn't up
 					if (!irSensor) {
 						irWaitSecs = 0;
 					} else {
 						irWaitSecs++;
 					}
 					return;
-				} else if (doorsOpen) {
+				} else if (doorsOpen) { // Doors are open an no more wait time
 					doorsOpen = false;
 					return;
-				} else if (!doorsOpen && !doorsOpenedOnFloor) {
+				} else if (!doorsOpenedOnFloor) { // Doors are closed and have never been open on this floor before
 					irWaitSecs = 0;
 					doorsOpen = true;
 					doorsOpenedOnFloor = true;
@@ -78,17 +79,12 @@ public class Elevator {
 		this.move();
 
 		if (idleTime == 30) {
-			if (Main.time < 50400) {
-				registers.setFloorCalled(1, 0);
-			} else {
-				registers.setFloorCalled(2, 0);
-			}
+			registers.reset();
 		}
 		direction = registers.getNextDirection(this.location, direction);
 	}
 	
-	public boolean move() {
-		registers.setLights(this.closestFloor(), direction);
+	public void move() {
 		if (this.atAFloor() && registers.stopAtFloor(this.closestFloor())) {
 			if (!latched) {
 				latched = true;
@@ -96,22 +92,20 @@ public class Elevator {
 				sound = true;
 			}
 			registers.clearFloor(this.closestFloor());
-			return true;
+			return;
 		}
 
 		if (direction == 0) {
-			return false;
+			return;
 		}
 
 		latched = false;
 
 		if (direction == 1) {
 			location++;
-			return true;
 		}
 		else {
 			location--;
-			return true;
 		}
 	}
 

@@ -13,12 +13,16 @@ public class RegisterBank {
 	}
 
 	public int getFloorNum(int num) {
-		num = num & ~(0x80);
+		num = num & ~(0xC0);
 		return num;
 	}
 
 	public int getCallDir(int num) {
 		return (num & 0x80) >> 7;
+	}
+
+	public boolean internalDestination(int num) {
+		return (num & 0x90) >> 7 == 1;
 	}
 	
 	public boolean stopAtFloor(int floor) {
@@ -27,7 +31,10 @@ public class RegisterBank {
 		}
 
 		for (int i = 0; i < x1000.length; i++) {
-			if (floor == getFloorNum(x1000[i]) && (Main.elev.direction == getCallDir(x1000[i]) || Main.elev.direction == 0)) {
+			if (floor != getFloorNum(x1000[i]) ) {
+				continue;
+			}
+			if (internalDestination(x1000[i]) || Main.elev.direction == getCallDir(x1000[i]) || Main.elev.direction == 0) {
 				return true;
 			}
 		}
@@ -35,12 +42,8 @@ public class RegisterBank {
 	}
 	
 	public void setFloorCalled(int floor, int direction) {
-		if (direction == 0) {
-			setFloorCalled(floor, -1);
-			setFloorCalled(floor, 1);
-			return;
-		}
-		x1000[x20] = floor | ((direction == 1)? 0x80 : 0x00);
+		int dirBits = ((direction == 1)? 0x80 : ((direction == 0)?0xC0:0x00));
+		x1000[x20] = floor | dirBits;
 		x20 = incrementAddress(x20);
 	}
 
@@ -57,8 +60,8 @@ public class RegisterBank {
 				return 1;
 			}
 		}
-		else if (currentDirection == 1 || currentDirection == 0) {
-			if(destinationAbove(location, 1)) {
+		else if (currentDirection == 1) {
+			if (destinationAbove(location, 1)) {
 				return 1;
 			}
 			else if (destinationBelow(location, 1)) {
@@ -108,6 +111,7 @@ public class RegisterBank {
 	
 	public void setLights(int floor, int direction) {
 		if (direction == 0) {
+			x19 = 0x11 << floor;
 			return;
 		}
 		int offset = direction == 1 ? 4 : 0;
@@ -139,7 +143,7 @@ public class RegisterBank {
 	}
 
 	public boolean isRequest() {
-		for(int i = 0; i < x1000.length; i++) {
+		for (int i = 0; i < x1000.length; i++) {
 			if (x1000[i] != -1) {
 				return true;
 			}
