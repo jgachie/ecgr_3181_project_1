@@ -57,7 +57,8 @@ public class Main {
 		elev.irSensor = true;
 		elev.doorOpenButton = false;
 		elev.doorCloseButton = false;
-		while (waitTimer --> 0) {
+		if (waitTimer > 0) {
+			waitTimer--;
 			return;
 		}
 		elev.idleTime = 0;
